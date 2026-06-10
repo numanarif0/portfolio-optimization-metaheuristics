@@ -25,8 +25,8 @@ def run_experiment(n_runs=30, n_pop=30, max_iter=200, rf=0.02,
     best_weights = {}
     best_sharpe = {name: -np.inf for name in ALGORITHMS}
 
-    print(f"Deney: {n_runs} koşu x {len(ALGORITHMS)} algoritma "
-          f"(pop={n_pop}, iter={max_iter}, varlık={dim})\n")
+    print(f"Experiment: {n_runs} runs x {len(ALGORITHMS)} algorithms "
+          f"(pop={n_pop}, iter={max_iter}, assets={dim})\n")
 
     for name, (fn, year, desc) in ALGORITHMS.items():
         for r in range(n_runs):
@@ -68,7 +68,7 @@ def run_experiment(n_runs=30, n_pop=30, max_iter=200, rf=0.02,
             continue
         _, p = ranksums(sharpe_runs[champ], sharpe_runs[name])
         wil.append({"Algorithm": name, "vs_champion": champ, "p_value": p,
-                    "significant": "Evet" if p < 0.05 else "Hayir"})
+                    "significant": "Yes" if p < 0.05 else "No"})
     wilcoxon = pd.DataFrame(wil)
 
     wdf = pd.DataFrame(best_weights, index=meta["tickers"])
@@ -79,11 +79,11 @@ def run_experiment(n_runs=30, n_pop=30, max_iter=200, rf=0.02,
     wdf.to_csv(os.path.join(RESULTS, "best_weights.csv"))
     np.savez(os.path.join(RESULTS, "curves.npz"), **curves)
 
-    print("\n=== ÖZET (ortalama Sharpe'a göre sıralı) ===")
+    print("\n=== SUMMARY (sorted by mean Sharpe) ===")
     print(summary.to_string(index=False))
-    print("\n=== Wilcoxon (şampiyon:", champ, ") ===")
+    print("\n=== Wilcoxon (champion:", champ, ") ===")
     print(wilcoxon.to_string(index=False))
-    print("\nSonuçlar 'results/' klasörüne kaydedildi.")
+    print("\nResults saved to 'results/'.")
 
     return {"summary": summary, "sharpe_runs": sharpe_runs, "curves": curves,
             "weights": wdf, "wilcoxon": wilcoxon, "meta": meta}

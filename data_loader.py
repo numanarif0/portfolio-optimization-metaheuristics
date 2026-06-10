@@ -28,10 +28,10 @@ def download_prices(tickers=None, start="2019-01-01", end="2024-12-31"):
             os.makedirs(os.path.dirname(CACHE_PATH), exist_ok=True)
             prices.to_csv(CACHE_PATH)
             return prices
-        raise RuntimeError("İndirilen veri yetersiz.")
+        raise RuntimeError("Downloaded data is insufficient.")
     except Exception as exc:
         if os.path.exists(CACHE_PATH):
-            print(f"[data_loader] Çevrimiçi indirme başarısız ({exc}); önbellek kullanılıyor.")
+            print(f"[data_loader] Online download failed ({exc}); using cache.")
             return pd.read_csv(CACHE_PATH, index_col=0, parse_dates=True)
         raise
 
@@ -57,12 +57,12 @@ def prepare_inputs(tickers=None, start="2019-01-01", end="2024-12-31", rf_annual
 
 if __name__ == "__main__":
     mu, Sigma, meta = prepare_inputs()
-    print("Varlık sayısı :", meta["n_assets"])
-    print("Hisseler      :", meta["tickers"])
-    print("Gözlem (gün)  :", len(meta["returns_daily"]))
-    print("\nYıllık beklenen getiriler (mu):")
+    print("Num. assets   :", meta["n_assets"])
+    print("Tickers       :", meta["tickers"])
+    print("Observations  :", len(meta["returns_daily"]))
+    print("\nAnnualized expected returns (mu):")
     for t, m in zip(meta["tickers"], mu):
         print(f"  {t:5s}: {m:6.2%}")
-    print("\nYıllık volatiliteler (sqrt(diag Sigma)):")
+    print("\nAnnualized volatilities (sqrt(diag Sigma)):")
     for t, s in zip(meta["tickers"], np.sqrt(np.diag(Sigma))):
         print(f"  {t:5s}: {s:6.2%}")
